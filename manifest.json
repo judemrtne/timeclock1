@@ -1,0 +1,30 @@
+{
+  "name": "Messages \u2014 Team Chat",
+  "short_name": "Messages",
+  "description": "Real-time team messaging, works offline",
+  "start_url": "/timeclock1/",
+  "scope": "/timeclock1/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0c0f",
+  "theme_color": "#0a0c0f",
+  "icons": [
+    {
+      "src": "/timeclock1/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/timeclock1/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "social"
+  ],
+  "lang": "en"
+}
