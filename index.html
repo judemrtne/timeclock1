@@ -1481,22 +1481,32 @@ function msgFilterUsers(){
 function msgRenderList(filtered=false){
   const list=filtered?msgFiltered:msgUsers;
   const el=document.getElementById('msgUserList');
-  if(!list.length){el.innerHTML='<div class="msg-empty-list">'+(msgUsers.length?'NO RESULTS':'NO OTHER USERS YET')+'</div>';return;}
+  if(!list.length){
+    el.innerHTML='<div class="msg-empty-list">'+(msgUsers.length?'NO RESULTS':'NO OTHER USERS YET')+'</div>';
+    return;
+  }
   el.innerHTML=list.map(u=>{
     const online=msgOnline.has(u.id),active=u.id===msgActivePeer;
     const unread=msgUnread[u.id]||0;
     const ini=(u.name||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     const last=msgGetLast(u.id);
-    return '<div class="msg-user-item'+(active?' mactive':'')+'" onclick="msgOpenChat(''+u.id+'',''+msgEsc(u.name)+'')">'
-      +'<div class="msg-avatar'+(online?' is-online':'')+'">'+ini+'</div>'
-      +(online?'<div class="msg-online-dot"></div>':'')
-      +'<div class="msg-user-info">'
-        +'<div class="msg-user-name">'+msgEsc(u.name)+'</div>'
-        +'<div class="msg-user-preview">'+(last?msgEsc(last):'')+'</div>'
-      +'</div>'
-      +(unread>0?'<div class="msg-unread">'+unread+'</div>':'')
-    +'</div>';
+    return [
+      '<div class="msg-user-item'+(active?' mactive':'')+'" data-uid="'+msgEsc(u.id)+'" data-uname="'+msgEsc(u.name)+'">',
+      '<div class="msg-avatar'+(online?' is-online':'')+'">'+ini+'</div>',
+      (online?'<div class="msg-online-dot"></div>':''),
+      '<div class="msg-user-info">',
+        '<div class="msg-user-name">'+msgEsc(u.name)+'</div>',
+        '<div class="msg-user-preview">'+(last?msgEsc(last):'')+'</div>',
+      '</div>',
+      (unread>0?'<div class="msg-unread">'+unread+'</div>':''),
+      '</div>'
+    ].join('');
   }).join('');
+  el.querySelectorAll('.msg-user-item').forEach(function(div){
+    div.addEventListener('click',function(){
+      msgOpenChat(div.getAttribute('data-uid'), div.getAttribute('data-uname'));
+    });
+  });
 }
 
 function msgGetLast(pid){

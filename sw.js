@@ -1,4 +1,4 @@
-const CACHE = 'timeclock-v4';
+const CACHE = 'timeclock-v5';
 const ASSETS = [
   '/time_clock/',
   '/time_clock/index.html',
@@ -12,7 +12,9 @@ self.addEventListener('install', e => {
     caches.open(CACHE).then(cache =>
       Promise.allSettled([
         ...ASSETS.map(a => cache.add(a)),
-        fetch('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2').then(r => cache.put('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', r)).catch(() => {})
+        fetch('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2')
+          .then(r => cache.put('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', r))
+          .catch(() => {})
       ])
     )
   );
@@ -28,22 +30,43 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+
+  // Supabase — network only, graceful offline fallback
   if (url.hostname.includes('supabase.co')) {
-    e.respondWith(fetch(e.request).catch(() =>
-      new Response(JSON.stringify({error:'offline'}), {status:503, headers:{'Content-Type':'application/json'}})
-    ));
+    e.respondWith(
+      fetch(e.request).catch(() =>
+        new Response(JSON.stringify({error:'offline'}), {
+          status: 503, headers: {'Content-Type':'application/json'}
+        })
+      )
+    );
     return;
   }
+
+  // CDN & fonts — cache first, refresh in background (clone BEFORE returning)
   if (url.hostname.includes('jsdelivr.net') || url.hostname.includes('googleapis.com') || url.hostname.includes('gstatic.com')) {
-    e.respondWith(caches.match(e.request).then(cached => {
-      const net = fetch(e.request).then(r => { caches.open(CACHE).then(c => c.put(e.request, r.clone())); return r; }).catch(() => cached);
-      return cached || net;
-    }));
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        const networkFetch = fetch(e.request).then(res => {
+          const toCache = res.clone(); // clone first, then cache
+          caches.open(CACHE).then(c => c.put(e.request, toCache));
+          return res;
+        }).catch(() => cached);
+        return cached || networkFetch;
+      })
+    );
     return;
   }
-  e.respondWith(caches.match(e.request).then(cached =>
-    cached || fetch(e.request)
-      .then(r => { caches.open(CACHE).then(c => c.put(e.request, r.clone())); return r; })
-      .catch(() => caches.match('/time_clock/index.html'))
-  ));
+
+  // App shell — cache first, network fallback, then index.html
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        const toCache = res.clone(); // clone first, then cache
+        caches.open(CACHE).then(c => c.put(e.request, toCache));
+        return res;
+      }).catch(() => caches.match('/time_clock/index.html'));
+    })
+  );
 });
