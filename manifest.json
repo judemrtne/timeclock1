@@ -1,22 +1,22 @@
 {
-  "name": "Messages \u2014 Team Chat",
-  "short_name": "Messages",
-  "description": "Real-time team messaging, works offline",
-  "start_url": "/timeclock1/",
-  "scope": "/timeclock1/",
+  "name": "Timeclock \u2014 Work Hours Tracker",
+  "short_name": "Timeclock",
+  "description": "Personal work hours tracker with messaging",
+  "start_url": "/time_clock/",
+  "scope": "/time_clock/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0c0f",
   "theme_color": "#0a0c0f",
   "icons": [
     {
-      "src": "/timeclock1/icon-192.png",
+      "src": "/time_clock/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/timeclock1/icon-512.png",
+      "src": "/time_clock/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -24,7 +24,7 @@
   ],
   "categories": [
     "productivity",
-    "social"
+    "utilities"
   ],
   "lang": "en"
 }
